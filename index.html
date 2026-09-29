@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samovar Feedback System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .star-rating input { display: none; }
+        .star-rating label { cursor: pointer; color: #cbd5e1; transition: color 0.15s ease-in-out; }
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label { color: #f59e0b; }
+        .star-rating-display { color: #f59e0b; }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="bg-brand-800 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-brand-700 rounded-lg">
+                        <i data-lucide="utensils" class="w-6 h-6 text-brand-100"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight leading-tight">Samovar</h1>
+                        <p class="text-xs text-brand-100">Feedback Portal</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs (Admin hidden by default) -->
+                <nav class="flex space-x-1 sm:space-x-2 bg-brand-900/40 p-1 rounded-xl">
+                    <button onclick="switchTab('submit')" id="tab-submit" class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-150 flex items-center space-x-2 bg-white text-brand-900 shadow">
+                        <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+                        <span>Submit Feedback</span>
+                    </button>
+                    <button onclick="switchTab('reports')" id="tab-reports" class="hidden px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-150 flex items-center space-x-2 text-brand-100 hover:text-white hover:bg-brand-700/50">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span>Reports & Admin</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- TAB 1: SUBMIT FEEDBACK FORM -->
+        <section id="view-submit" class="max-w-2xl mx-auto space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <div class="border-b border-slate-100 pb-5 mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900">Dining Experience Feedback</h2>
+                    <p class="text-sm text-slate-500 mt-1">Please take a moment to rate your meal today at Samovar. Your feedback helps us improve quality.</p>
+                </div>
+
+                <form id="feedbackForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                    
+                    <!-- Mandatory Employee Details -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="empName" class="block text-sm font-semibold text-slate-700 mb-1">Employee Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="empName" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label for="empId" class="block text-sm font-semibold text-slate-700 mb-1">Employee ID <span class="text-red-500">*</span></label>
+                            <input type="text" id="empId" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm" placeholder="EMP1234">
+                        </div>
+                    </div>
+
+                    <!-- Meal Type & Date Selection -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="mealType" class="block text-sm font-semibold text-slate-700 mb-1">Meal Type <span class="text-red-500">*</span></label>
+                            <select id="mealType" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="" disabled selected>Select Meal Session</option>
+                                <option value="Breakfast">Breakfast</option>
+                                <option value="Lunch">Lunch</option>
+                                <option value="Dinner">Dinner</option>
+                                <option value="Midnight Snacks">Midnight Snacks</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="entryDate" class="block text-sm font-semibold text-slate-700 mb-1">Date <span class="text-red-500">*</span></label>
+                            <input type="date" id="entryDate" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Rating Criteria -->
+                    <div class="space-y-4 pt-2">
+                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Rating Criteria</h3>
+                        
+                        <!-- Food Quality -->
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="font-medium text-slate-800 text-sm">Food Quality & Taste</span>
+                                <p class="text-xs text-slate-500">Freshness, temperature, seasoning, and presentation</p>
+                            </div>
+                            <div class="star-rating flex flex-row-reverse justify-end gap-1 text-2xl">
+                                <input type="radio" id="food-5" name="rate_food" value="5" required /><label for="food-5">★</label>
+                                <input type="radio" id="food-4" name="rate_food" value="4" /><label for="food-4">★</label>
+                                <input type="radio" id="food-3" name="rate_food" value="3" /><label for="food-3">★</label>
+                                <input type="radio" id="food-2" name="rate_food" value="2" /><label for="food-2">★</label>
+                                <input type="radio" id="food-1" name="rate_food" value="1" /><label for="food-1">★</label>
+                            </div>
+                        </div>
+
+                        <!-- Hygiene & Cleanliness -->
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="font-medium text-slate-800 text-sm">Hygiene & Cleanliness</span>
+                                <p class="text-xs text-slate-500">Cleanliness of dining area, trays, cutlery, and counter</p>
+                            </div>
+                            <div class="star-rating flex flex-row-reverse justify-end gap-1 text-2xl">
+                                <input type="radio" id="hygiene-5" name="rate_hygiene" value="5" required /><label for="hygiene-5">★</label>
+                                <input type="radio" id="hygiene-4" name="rate_hygiene" value="4" /><label for="hygiene-4">★</label>
+                                <input type="radio" id="hygiene-3" name="rate_hygiene" value="3" /><label for="hygiene-3">★</label>
+                                <input type="radio" id="hygiene-2" name="rate_hygiene" value="2" /><label for="hygiene-2">★</label>
+                                <input type="radio" id="hygiene-1" name="rate_hygiene" value="1" /><label for="hygiene-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggestions / Comments -->
+                    <div>
+                        <label for="comments" class="block text-sm font-semibold text-slate-700 mb-1">Suggestions & Specific Feedback <span class="text-xs text-slate-400 font-normal">(Optional)</span></label>
+                        <textarea id="comments" rows="3" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm" placeholder="Tell us what you liked or what we can improve..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 px-6 rounded-xl transition duration-150 shadow-md flex items-center justify-center space-x-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Submit Samovar Feedback</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 2: REPORTS & ADMIN DASHBOARD -->
+        <section id="view-reports" class="hidden space-y-6">
+            
+            <!-- Dashboard Controls Bar -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Analytics & Admin Reports</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Filter daily and monthly ratings, download CSVs, or manage stored data.</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Export CSV button -->
+                    <button onclick="exportToCSV()" class="px-4 py-2 bg-slate-900 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-slate-800 transition flex items-center space-x-2 shadow-sm">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Export CSV Data</span>
+                    </button>
+
+                    <!-- Data Management Buttons -->
+                    <button onclick="generateSampleData()" title="Populate demo data for testing reports" class="px-3 py-2 bg-amber-50 text-amber-700 border border-amber-200 text-xs sm:text-sm font-medium rounded-lg hover:bg-amber-100 transition flex items-center space-x-1">
+                        <i data-lucide="flask-conical" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Add Sample Data</span>
+                    </button>
+                    
+                    <button onclick="clearAllData()" title="Wipe local database" class="px-3 py-2 bg-red-50 text-red-600 border border-red-200 text-xs sm:text-sm font-medium rounded-lg hover:bg-red-100 transition flex items-center space-x-1">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Clear Data</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Mode Selector & Date Filters -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
+                    <!-- Report View Toggle -->
+                    <div class="inline-flex p-1 bg-slate-100 rounded-xl text-xs sm:text-sm">
+                        <button onclick="setReportMode('daily')" id="btn-report-daily" class="px-4 py-1.5 rounded-lg font-medium bg-white text-slate-900 shadow">Daily Report</button>
+                        <button onclick="setReportMode('monthly')" id="btn-report-monthly" class="px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900">Monthly Report</button>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div id="filter-daily-container" class="flex items-center space-x-2">
+                        <label for="report-date" class="text-xs sm:text-sm font-semibold text-slate-600">Select Date:</label>
+                        <input type="date" id="report-date" onchange="renderReports()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+
+                    <div id="filter-monthly-container" class="hidden flex items-center space-x-2">
+                        <label for="report-month" class="text-xs sm:text-sm font-semibold text-slate-600">Select Month:</label>
+                        <input type="month" id="report-month" onchange="renderReports()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- KPI Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-4">
+                        <div class="p-3 bg-brand-100 text-brand-700 rounded-lg">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Feedback</p>
+                            <h3 id="stat-total-count" class="text-2xl font-bold text-slate-900">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-4">
+                        <div class="p-3 bg-amber-100 text-amber-700 rounded-lg">
+                            <i data-lucide="utensils-crossed" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Food Quality Avg</p>
+                            <h3 id="stat-avg-food" class="text-2xl font-bold text-slate-900">0.0 <span class="text-xs font-normal text-slate-400">/ 5</span></h3>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-4">
+                        <div class="p-3 bg-emerald-100 text-emerald-700 rounded-lg">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Hygiene Avg</p>
+                            <h3 id="stat-avg-hygiene" class="text-2xl font-bold text-slate-900">0.0 <span class="text-xs font-normal text-slate-400">/ 5</span></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meal Breakdown Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="meal-breakdown-cards">
+                <!-- Breakfast Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium uppercase">Breakfast</span>
+                        <div class="text-lg font-bold text-slate-900 mt-0.5" id="meal-breakfast-count">0 entries</div>
+                    </div>
+                    <div class="text-sm font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-md" id="meal-breakfast-rating">0.0 ★</div>
+                </div>
+
+                <!-- Lunch Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium uppercase">Lunch</span>
+                        <div class="text-lg font-bold text-slate-900 mt-0.5" id="meal-lunch-count">0 entries</div>
+                    </div>
+                    <div class="text-sm font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-md" id="meal-lunch-rating">0.0 ★</div>
+                </div>
+
+                <!-- Dinner Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium uppercase">Dinner</span>
+                        <div class="text-lg font-bold text-slate-900 mt-0.5" id="meal-dinner-count">0 entries</div>
+                    </div>
+                    <div class="text-sm font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-md" id="meal-dinner-rating">0.0 ★</div>
+                </div>
+
+                <!-- Midnight Snacks Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium uppercase">Midnight Snacks</span>
+                        <div class="text-lg font-bold text-slate-900 mt-0.5" id="meal-snacks-count">0 entries</div>
+                    </div>
+                    <div class="text-sm font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-md" id="meal-snacks-rating">0.0 ★</div>
+                </div>
+            </div>
+
+            <!-- Detailed Records Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="text-base font-bold text-slate-900">Feedback Detail Log</h3>
+                    <span id="log-count-badge" class="text-xs px-2.5 py-1 rounded-full bg-slate-100 font-medium text-slate-600">Showing 0 entries</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="py-3.5 px-4">Date & Time</th>
+                                <th class="py-3.5 px-4">Employee</th>
+                                <th class="py-3.5 px-4">Meal</th>
+                                <th class="py-3.5 px-4 text-center">Food Quality</th>
+                                <th class="py-3.5 px-4 text-center">Hygiene</th>
+                                <th class="py-3.5 px-4">Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedback-table-body" class="divide-y divide-slate-100">
+                            <!-- Rows generated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty state placeholder -->
+                <div id="table-empty-state" class="hidden p-8 text-center text-slate-400">
+                    <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+                    <p class="text-sm font-medium">No feedback entries found for this selection.</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Success Modal Notification -->
+    <div id="successModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center shadow-xl border border-slate-100 transform transition-all">
+            <div class="w-14 h-14 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="check" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900">Thank You!</h3>
+            <p class="text-sm text-slate-500 mt-2">Your feedback for Samovar has been recorded successfully.</p>
+            <button onclick="closeModal()" class="mt-6 w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-xl text-sm transition">Close</button>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // Storage Keys & State Variables
+        const STORAGE_KEY = 'samovar_feedback_data';
+        const ADMIN_PIN = '1234'; // CHANGE YOUR ADMIN PIN HERE
+        let reportMode = 'daily'; 
+        let isAdminAuthenticated = false;
+
+        // On DOM Load Setup
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.substring(0, 7);
+
+            document.getElementById('entryDate').value = today;
+            document.getElementById('report-date').value = today;
+            document.getElementById('report-month').value = currentMonth;
+
+            // Check if URL parameter contains ?admin=true
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === 'true') {
+                document.getElementById('tab-reports').classList.remove('hidden');
+            }
+
+            // Keyboard shortcut to reveal Admin tab: Ctrl + Shift + A
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+                    document.getElementById('tab-reports').classList.remove('hidden');
+                    switchTab('reports');
+                }
+            });
+
+            // Initialize Lucide Icons
+            lucide.createIcons();
+        });
+
+        // Protected Tab Switching Logic
+        function switchTab(tabName) {
+            const submitView = document.getElementById('view-submit');
+            const reportsView = document.getElementById('view-reports');
+            const submitBtn = document.getElementById('tab-submit');
+            const reportsBtn = document.getElementById('tab-reports');
+
+            if (tabName === 'submit') {
+                submitView.classList.remove('hidden');
+                reportsView.classList.add('hidden');
+                submitBtn.className = "px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-150 flex items-center space-x-2 bg-white text-brand-900 shadow";
+                reportsBtn.className = "px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-150 flex items-center space-x-2 text-brand-100 hover:text-white hover:bg-brand-700/50";
+            } else {
+                // Prompt Password if not authenticated yet
+                if (!isAdminAuthenticated) {
+                    const passInput = prompt("🔒 Admin Access Required\nPlease enter the Admin PIN:");
+                    if (passInput === ADMIN_PIN) {
+                        isAdminAuthenticated = true;
+                    } else {
+                        if (passInput !== null) alert("Incorrect PIN. Access Denied.");
+                        return;
+                    }
+                }
+
+                submitView.classList.add('hidden');
+                reportsView.classList.remove('hidden');
+                reportsBtn.className = "px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-150 flex items-center space-x-2 bg-white text-brand-900 shadow";
+                submitBtn.className = "px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-150 flex items-center space-x-2 text-brand-100 hover:text-white hover:bg-brand-700/50";
+                renderReports();
+            }
+        }
+
+        // Local Storage Helpers
+        function getFeedbackData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveFeedbackData(dataArray) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataArray));
+        }
+
+        // Form Handler
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const entry = {
+                id: Date.now().toString(),
+                empName: document.getElementById('empName').value.trim(),
+                empId: document.getElementById('empId').value.trim(),
+                mealType: document.getElementById('mealType').value,
+                date: document.getElementById('entryDate').value,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                ratings: {
+                    food: parseInt(document.querySelector('input[name="rate_food"]:checked').value),
+                    hygiene: parseInt(document.querySelector('input[name="rate_hygiene"]:checked').value)
+                },
+                comments: document.getElementById('comments').value.trim()
+            };
+
+            const currentData = getFeedbackData();
+            currentData.push(entry);
+            saveFeedbackData(currentData);
+
+            // Reset form
+            document.getElementById('feedbackForm').reset();
+            document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+
+            // Open Modal
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        // Toggle Daily / Monthly Modes
+        function setReportMode(mode) {
+            reportMode = mode;
+            const btnDaily = document.getElementById('btn-report-daily');
+            const btnMonthly = document.getElementById('btn-report-monthly');
+            const filterDaily = document.getElementById('filter-daily-container');
+            const filterMonthly = document.getElementById('filter-monthly-container');
+
+            if (mode === 'daily') {
+                btnDaily.className = "px-4 py-1.5 rounded-lg font-medium bg-white text-slate-900 shadow";
+                btnMonthly.className = "px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900";
+                filterDaily.classList.remove('hidden');
+                filterMonthly.classList.add('hidden');
+            } else {
+                btnMonthly.className = "px-4 py-1.5 rounded-lg font-medium bg-white text-slate-900 shadow";
+                btnDaily.className = "px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900";
+                filterMonthly.classList.remove('hidden');
+                filterDaily.classList.add('hidden');
+            }
+
+            renderReports();
+        }
+
+        // Render Reports & Metrics
+        function renderReports() {
+            const allData = getFeedbackData();
+            let filteredData = [];
+
+            if (reportMode === 'daily') {
+                const selectedDate = document.getElementById('report-date').value;
+                filteredData = allData.filter(item => item.date === selectedDate);
+            } else {
+                const selectedMonth = document.getElementById('report-month').value;
+                filteredData = allData.filter(item => item.date.startsWith(selectedMonth));
+            }
+
+            // Overall Metrics
+            const totalCount = filteredData.length;
+            let avgFood = 0;
+            let avgHygiene = 0;
+
+            if (totalCount > 0) {
+                const sumFood = filteredData.reduce((acc, curr) => acc + curr.ratings.food, 0);
+                const sumHygiene = filteredData.reduce((acc, curr) => acc + curr.ratings.hygiene, 0);
+
+                avgFood = (sumFood / totalCount).toFixed(1);
+                avgHygiene = (sumHygiene / totalCount).toFixed(1);
+            }
+
+            document.getElementById('stat-total-count').textContent = totalCount;
+            document.getElementById('stat-avg-food').innerHTML = `${avgFood} <span class="text-xs font-normal text-slate-400">/ 5</span>`;
+            document.getElementById('stat-avg-hygiene').innerHTML = `${avgHygiene} <span class="text-xs font-normal text-slate-400">/ 5</span>`;
+
+            // Meal Breakdown Metrics
+            const meals = ['Breakfast', 'Lunch', 'Dinner', 'Midnight Snacks'];
+            const mealKeyMap = {
+                'Breakfast': 'breakfast',
+                'Lunch': 'lunch',
+                'Dinner': 'dinner',
+                'Midnight Snacks': 'snacks'
+            };
+
+            meals.forEach(m => {
+                const mealEntries = filteredData.filter(item => item.mealType === m || (m === 'Midnight Snacks' && (item.mealType === 'Snacks' || item.mealType === 'Midnight Snacks')));
+                const mCount = mealEntries.length;
+                let mAvg = 0;
+                if (mCount > 0) {
+                    const mSum = mealEntries.reduce((acc, c) => acc + ((c.ratings.food + c.ratings.hygiene) / 2), 0);
+                    mAvg = (mSum / mCount).toFixed(1);
+                }
+                
+                const key = mealKeyMap[m];
+                document.getElementById(`meal-${key}-count`).textContent = `${mCount} entries`;
+                document.getElementById(`meal-${key}-rating`).textContent = `${mAvg} ★`;
+            });
+
+            // Populate Table
+            const tbody = document.getElementById('feedback-table-body');
+            const emptyState = document.getElementById('table-empty-state');
+            const countBadge = document.getElementById('log-count-badge');
+
+            tbody.innerHTML = '';
+            countBadge.textContent = `Showing ${totalCount} entries`;
+
+            if (totalCount === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                filteredData.sort((a, b) => new Date(b.date + ' ' + b.timestamp) - new Date(a.date + ' ' + a.timestamp));
+
+                filteredData.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50/80 transition-colors';
+
+                    const empDisplay = `<div class="font-medium text-slate-900">${escapeHtml(item.empName)}</div><div class="text-[11px] text-slate-400">ID: ${escapeHtml(item.empId)}</div>`;
+
+                    row.innerHTML = `
+                        <td class="py-3 px-4 whitespace-nowrap">
+                            <div class="font-medium text-slate-800">${item.date}</div>
+                            <div class="text-[11px] text-slate-400">${item.timestamp}</div>
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap">${empDisplay}</td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                                ${item.mealType}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center font-medium text-amber-600">${item.ratings.food} ★</td>
+                        <td class="py-3 px-4 text-center font-medium text-amber-600">${item.ratings.hygiene} ★</td>
+                        <td class="py-3 px-4 max-w-xs truncate text-slate-500" title="${escapeHtml(item.comments)}">
+                            ${item.comments ? escapeHtml(item.comments) : '<span class="text-slate-300 italic">No comments</span>'}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        // CSV Export Functionality
+        function exportToCSV() {
+            const allData = getFeedbackData();
+            let dataToExport = [];
+            let fileName = 'Samovar_Feedback';
+
+            if (reportMode === 'daily') {
+                const date = document.getElementById('report-date').value;
+                dataToExport = allData.filter(i => i.date === date);
+                fileName += `_Daily_${date}.csv`;
+            } else {
+                const month = document.getElementById('report-month').value;
+                dataToExport = allData.filter(i => i.date.startsWith(month));
+                fileName += `_Monthly_${month}.csv`;
+            }
+
+            if (dataToExport.length === 0) {
+                alert('No data available to export for the selected filter.');
+                return;
+            }
+
+            const headers = ['ID', 'Date', 'Time', 'Employee Name', 'Employee ID', 'Meal Type', 'Food Quality', 'Hygiene & Cleanliness', 'Comments'];
+            const csvRows = [headers.join(',')];
+
+            dataToExport.forEach(item => {
+                const row = [
+                    `"${item.id}"`,
+                    `"${item.date}"`,
+                    `"${item.timestamp}"`,
+                    `"${escapeCsv(item.empName)}"`,
+                    `"${escapeCsv(item.empId)}"`,
+                    `"${item.mealType}"`,
+                    item.ratings.food,
+                    item.ratings.hygiene,
+                    `"${escapeCsv(item.comments || '')}"`
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.setAttribute('href', URL.createObjectURL(blob));
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Demo Data Generator
+        function generateSampleData() {
+            const sampleEntries = [];
+            const names = ['Rahul Sharma', 'Priya Patel', 'Amit Kumar', 'Sneha Reddy', 'Vikram Singh', 'Ananya Iyer'];
+            const meals = ['Breakfast', 'Lunch', 'Dinner', 'Midnight Snacks'];
+            const commentsList = [
+                'Food was delicious today!',
+                'Hygiene was clean and tidy.',
+                'Curry was a bit salty.',
+                'Great experience over lunch.',
+                'Snacks were served hot and fresh.'
+            ];
+
+            const today = new Date();
+
+            for (let i = 0; i < 30; i++) {
+                const d = new Date();
+                d.setDate(today.getDate() - Math.floor(Math.random() * 15));
+                const dateStr = d.toISOString().split('T')[0];
+                const empIndex = Math.floor(Math.random() * names.length);
+
+                sampleEntries.push({
+                    id: (Date.now() - i * 100000).toString(),
+                    empName: names[empIndex],
+                    empId: 'EMP' + (1000 + empIndex * 15),
+                    mealType: meals[Math.floor(Math.random() * meals.length)],
+                    date: dateStr,
+                    timestamp: '12:30 PM',
+                    ratings: {
+                        food: Math.floor(Math.random() * 3) + 3,
+                        hygiene: Math.floor(Math.random() * 3) + 3
+                    },
+                    comments: Math.random() > 0.4 ? commentsList[Math.floor(Math.random() * commentsList.length)] : ''
+                });
+            }
+
+            saveFeedbackData([...getFeedbackData(), ...sampleEntries]);
+            renderReports();
+            alert('30 sample feedback records added successfully!');
+        }
+
+        // Clear Storage
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all feedback records from browser storage?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                renderReports();
+            }
+        }
+
+        // Utilities
+        function escapeHtml(str) {
+            return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
+        }
+
+        function escapeCsv(str) {
+            return str ? str.replace(/"/g, '""') : '';
+        }
+    </script>
+</body>
+</html>
